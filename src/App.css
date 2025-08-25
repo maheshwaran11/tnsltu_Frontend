@@ -1,0 +1,320 @@
+/* =============================
+   Global Variables
+============================= */
+:root {
+  /* Brand Colors */
+  --color-primary: #038175;   /* Dark Teal */
+  --color-secondary: #0BB68C; /* Bright Teal */
+  --color-accent: #94DD8B;    /* Soft Green */
+  --color-warning: #FFE3B3;   /* Light Yellow */
+  --color-danger: #c62828;    /* Error Red */
+  --color-success: #2e7d32;   /* Success Green */
+  --color-text: #212121;
+  --color-muted: #757575;
+  --color-bg: #F3F5F9;
+
+  /* Spacing Scale (4px grid system) */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Font Sizes */
+  --font-xs: 12px;
+  --font-sm: 14px;
+  --font-md: 16px;
+  --font-lg: 20px;
+  --font-xl: 24px;
+  --font-2xl: 32px;
+  --font-3xl: 40px;
+
+  /* Font Weights */
+  --fw-thin: 100;
+  --fw-extralight: 200;
+  --fw-light: 300;
+  --fw-normal: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+  --fw-black: 900;
+}
+
+/* =============================
+   Global Resets
+============================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+body {
+  font-family: 'Fira Sans', sans-serif;
+  font-size: var(--font-md);
+  font-weight: var(--fw-normal);
+  color: var(--color-text);
+  background: #fff;
+  line-height: 1.5;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Fira Sans', sans-serif;
+  font-weight: var(--fw-medium);
+  margin-bottom: var(--space-3);
+}
+
+h1 { font-size: var(--font-3xl); }
+h2 { font-size: var(--font-2xl); }
+h3 { font-size: var(--font-xl); }
+h4 { font-size: var(--font-lg); }
+h5 { font-size: var(--font-md); }
+h6 { font-size: var(--font-sm); }
+
+/* =============================
+   Layout Helpers
+============================= */
+.form-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.form-item {
+  flex: 1 1 100%;
+}
+
+@media (min-width: 600px) {
+  .form-item {
+    flex: 1 1 calc(50% - var(--space-4));
+  }
+}
+
+@media (min-width: 900px) {
+  .form-item {
+    flex: 1 1 calc(33.333% - var(--space-4));
+  }
+}
+
+.form-grid > div {
+  flex: 1 1 40%;
+  min-width: 250px;
+}
+
+/* =============================
+   Tables
+============================= */
+table thead tr th {
+  font-weight: var(--fw-semibold);
+}
+
+/* =============================
+   Buttons
+============================= */
+.button {
+  padding: var(--space-3) var(--space-4);
+  font-weight: var(--fw-semibold);
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.button.primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.button.secondary {
+  background: var(--color-secondary);
+  color: #fff;
+}
+
+/* =============================
+   Status Tags
+============================= */
+span.tag-label {
+  padding: var(--space-1) var(--space-3);
+  border-radius: 10px;
+  font-weight: var(--fw-medium);
+  font-size: var(--font-sm);
+}
+
+.status-generated,
+.status-active,
+.status-approved {
+  background: var(--color-success);
+  color: #fff;
+}
+
+.status-pending,
+.status-pendings {
+  background: var(--color-warning);
+  color: var(--color-text);
+}
+
+.status-inactive {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+/* =============================
+   Login Page
+============================= */
+.login-page .login-container {
+  background: var(--color-bg);
+  padding: var(--space-6);
+  border-radius: 8px;
+}
+
+.login-page .login-container h5 {
+  margin-bottom: var(--space-5);
+  text-align: center;
+}
+
+/* =============================
+   Headers
+============================= */
+.header-title {
+  font-size: var(--font-xl);
+  max-width: 570px;
+  font-weight: var(--fw-semibold);
+}
+
+.header-right-title {
+  font-size: var(--font-3xl);
+  font-weight: var(--fw-medium);
+}
+
+/* =============================
+   Filters
+============================= */
+.filter-control {
+  min-width: 200px !important;
+}
+
+/* =============================
+   Notifications
+============================= */
+.notifications-section {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.notifications-section > div {
+  padding: 0;
+  max-width: 600px;
+  width: 100%;
+}
+
+@media screen and (max-width: 1024px) {
+  .notifications-section {
+    display: block;
+  } 
+}
+
+.notifications-card,
+.notifications-list,
+.notification-item {
+  padding: 0;
+  margin: 0;
+}
+
+.notification-item {
+  border-bottom: 2px solid #ececec;
+}
+
+.notification-date {
+  padding: var(--space-5);
+  width: 100px;
+  background: var(--color-success);
+  color: #fff;
+}
+
+.notification-content {
+  padding: var(--space-5);
+  min-height: 84px;
+}
+
+/* =============================
+   Misc
+============================= */
+.MuiDrawer-anchorLeft ul li {
+  cursor: pointer;
+}
+
+.slick-dots li button:before {
+  font-size: var(--font-md);
+}
+
+.container {
+    max-width: 1280px;
+    margin: auto;
+}
+
+.home-slider .slick-dots {
+    bottom: 7px;
+    background: var(--color-secondary);
+    max-width: 50px;
+    right: 0;
+    height: 70px;
+    text-align: center;
+    margin: auto;
+    display: flex !important;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    justify-content: end;
+}
+
+.service-card {
+    max-width: 380px;
+    width: 100%;
+    justify-content: center !important;
+}
+.reg_no_text {
+      display: block;
+    color: var(--color-primary);
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.MuiDrawer-anchorLeft ul li.active,
+.MuiDrawer-anchorLeft ul li:hover {
+  background: #ccc !important;
+}
+
+.status {
+  background: var(--color-muted);
+  padding: 5px 10px;
+  border-radius: 30px;
+  color: #fff;
+}
+.completed {
+  background: var(--color-success);
+  color: #fff;
+}
+
+.submitted {
+  background: var(--color-warning);
+  color: var(--color-text);
+}
+
+.pending {
+  background: var(--color-danger);
+  color: #fff;
+}
+.in_progress {
+  background: var(--color-secondary);
+  color: #fff;
+}
