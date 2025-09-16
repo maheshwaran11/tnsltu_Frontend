@@ -213,7 +213,7 @@ export async function getAllFamilyMembers(token) {
 export async function saveFamilyMemberDetails(userId, data, token) {
   try {
     const payload = {
-      id: userId,         // head user id
+      user_id: userId,         // head user id
       ...data             // may already contain family_id if editing
     };
 
@@ -464,6 +464,109 @@ export async function changePasswordAPI(data, token) {
         'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(data),
+    });
+
+    const res = await response.json();
+    return res;
+  } catch (err) {
+    return { status: 500, message: 'Network error' };
+  }
+}
+
+export async function createOrderAPI(data, token) {
+  try {
+    const response = await fetch(`${API_BASE}/create_order.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(data),
+    });
+
+    const res = await response.json();
+    return res;
+  } catch (err) {
+    return { status: 500, message: 'Network error' };
+  }
+}
+
+export async function getOrdersByUserAPI(userId, token) {
+  try {
+    const response = await fetch(`${API_BASE}/get_orders_by_user.php?user_id=${userId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+    });
+
+    const res = await response.json();
+    return res;
+  } catch (err) {
+    return { status: 500, message: 'Network error' };
+  }
+}
+
+export async function deleteOrderAPI(orderId, token) {
+  try {
+    const response = await fetch(`${API_BASE}/delete_order.php?order_id=${orderId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+    });
+
+    const res = await response.json();
+    return res;
+  } catch (err) {
+    return { status: 500, message: 'Network error' };
+  }
+}
+
+export async function getAllOrdersAPI(token) {
+  try {
+    const response = await fetch(`${API_BASE}/get_orders.php`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+    });
+
+    const res = await response.json();
+    return res;
+  } catch (err) {
+    return { status: 500, message: 'Network error' };
+  }
+}
+
+export async function updateOrderStatusAPI(payload, token) {
+  try {
+    const response = await fetch(`${API_BASE}/update_order_status.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const res = await response.json();
+    return res;
+  } catch (err) {
+    return { status: 500, message: 'Network error' };
+  }
+}
+
+export const getUpcomingNotifications = async () => {
+  try {
+    const response = await fetch(`${API_BASE}/getUpcomingNotifications.php`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
     const res = await response.json();

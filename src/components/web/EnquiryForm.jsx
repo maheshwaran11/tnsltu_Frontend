@@ -126,7 +126,7 @@ export default function EnquiryForm() {
             align="center"
             sx={{ fontWeight: 700, mb: 4, color: "primary.main" }}
           >
-            ✨ New Enquiry
+            ✨ Join Us
           </Typography>
 
           <Box

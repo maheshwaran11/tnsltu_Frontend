@@ -15,6 +15,7 @@ import { t } from '../utils/i18n';
 import AddEditIdCardDetails from './AddEditIdCardDetails';
 import { Navigate, useNavigate } from 'react-router-dom';
 import ViewIdCardDetails from './ViewIdCardDetails';
+import TableComponent from './utils/TableComponent';
 
 const roles = ['all', 'admin', 'subadmin', 'district_admin', 'taluk_admin', 'district_subadmin', 'taluk_subadmin', 'user'];
 
@@ -149,18 +150,35 @@ const approveCard = async (user) => {
 
 
   const headers = [
-    { label: 'Username', key: 'username' },
-    { label: 'Email', key: 'email' },
-    { label: 'User Type', key: 'user_type' },
-    { label: 'District', key: 'district' },
-    { label: 'Taluk', key: 'taluk' },
-    { label: 'Category', key: 'category' }
-  ];
+    { id: 'serial_no', label: t('Sl No', lang), key: 'serial_no' },
+    { id: 'username', label: t('username', lang), key: 'username' },
+    { id: 'name', label: t('name', lang), key: 'id_card_name' },
+    { id: 'member_id', label: t('member_id', lang), key: 'member_id' },
+    { id: 'registration_date', label: t('registration_date', lang), key: 'registration_date' },
+    { id: 'next_renewal_date', label: t('next_renewal_date', lang), key: 'next_renewal_date' },
+    // { id: 'status', label: t('status', lang), key: 'status' },
+    { id: 'actions', label: t('actions', lang), key: 'actions', render: (row) => (
+      <Box display="flex" gap={1} minWidth={120}>
+        <Button
+          variant="outlined"
+          onClick={() => setViewUser(row)}
+        >
+          {t('save_details', lang)}
+        </Button>
+        <Button
+          variant="contained"
+          color="info"
+          onClick={() => setDownloadUser(row)}>
+          {t('download', lang)}
+        </Button>
+      </Box>
+  ) },
+  ]
 
   return (
     <Paper sx={{ p: 2, overflow: 'auto' }}>
       <Typography variant="h6" gutterBottom>
-        {t('id cards', lang)} ({total})
+        {t('ID Cards', lang)} ({total})
         {/* <Button
           variant="contained"
           startIcon={<PersonAdd />}
@@ -172,10 +190,10 @@ const approveCard = async (user) => {
         </Button> */}
       </Typography>
 
-      <Box display="flex" gap={2} mb={2}>
+      <Box display="flex" gap={2} mb={2} flexWrap={'wrap'}>
         <TextField
           label={t('search_by_username', lang)}
-          fullWidth
+          className='input-control'
           value={search}
           onChange={handleSearch}
         />
@@ -184,6 +202,7 @@ const approveCard = async (user) => {
             <>
           <TextField
             select
+            className='input-control'
             label={t('filter_by_role', lang)}
             value={filterRole}
             onChange={handleFilterRole}
@@ -208,132 +227,7 @@ const approveCard = async (user) => {
         <CircularProgress />
       ) : (
         <Box sx={{maxHeight: 'calc(100vh - 64px)', overflow: 'auto' }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>{t('Sl No', lang)}</TableCell>
-                <TableCell>{t('profile', lang)}</TableCell>
-                <TableCell>{t('username', lang)}</TableCell>
-                <TableCell>{t('name', lang)}</TableCell>
-                <TableCell>{t('member_id', lang)}</TableCell>
-                <TableCell>{t('registration_date', lang)}</TableCell>
-                <TableCell>{t('next_renewal_date', lang)}</TableCell>
-                <TableCell>{t('status', lang)}</TableCell>
-                <TableCell align="right">{t('actions', lang)}</TableCell>
-
-                <TableCell align="right">
-                  {profile?.user_type === 'admin' && (
-                    <>{t('approve/reject', lang)}</>
-                  )}
-
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filtered
-                .filter((user) => user.id !== profile?.id)
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((user) => (
-                  
-                  <TableRow key={user.id}>
-                    <TableCell>{user.serial_no}</TableCell>
-                    <TableCell>
-                      <Avatar
-                        alt={user.username}
-                        src={user.profile_photo ? `https://tnsltu.in/api/${user.profile_photo}` : ''}
-                      >
-                        {user.username?.[0]?.toUpperCase()}
-                      </Avatar>
-                    </TableCell>
-                    <TableCell>{user.username}</TableCell>
-                    <TableCell>{user.id_card_name}</TableCell>
-                    <TableCell>{user.member_id}</TableCell>
-                    <TableCell>{t(user.registration_date, lang) || '-'}</TableCell>
-                    <TableCell>{t(user.next_renewal_date, lang) || '-'}</TableCell>
-                    <TableCell><span className={`tag-label status-${user.status}`}>{t(user.status, lang) || 'pending'}</span></TableCell>
-                    <TableCell align="right">
-                            <Button
-                                variant="contained"
-                                color="info"
-                                size="small"
-                                onClick={() => setViewUser(user)}
-                            >
-                                {t('save_details', lang)}
-                            </Button>
-
-
-                        {
-                        ((profile?.user_type === 'admin') && ((user.status === 'pending') || (user.status === 'approved'))) && (
-                            <Button
-                                variant="contained"
-                                color="error"
-                                size="small"
-                                onClick={() => setDownloadUser(user)}>
-                                {t('download', lang)}
-                            </Button>
-                        )
-                      }
-                      {
-                        (((profile?.user_type === 'district_admin') || (profile?.user_type === 'district_subadmin')) && (user.status === 'approved')) && (
-                            <Button
-                                variant="contained"
-                                color="error"
-                                size="small"
-                                onClick={() => setDownloadUser(user)}>
-                                {t('download', lang)}
-                            </Button>
-                        )
-                        
-                        }
-                        
-                    </TableCell>
-
-                    <TableCell align="right">
-                        {profile?.user_type === 'admin' && (
-                        <>
-                          {user.status === 'pending' && (
-                            <Button
-                              variant="contained"
-                              color="success"
-                              size="small"
-                              disabled={loading}
-                              onClick={() => approveCard(user)}
-                            >
-                              {loading ? t('saving', lang) : t('approve', lang)}
-                            </Button>
-                          )}
-
-                          {user.status === 'approved' && (
-                            <Button
-                              variant="contained"
-                              color="error"
-                              size="small"
-                              disabled={loading}
-                              onClick={() => approveCard(user)}
-                            >
-                              {loading ? t('saving', lang) : t('reject', lang)}
-                            </Button>
-                          )}
-                        </>
-                      )}
-
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-
-          <TablePagination
-            component="div"
-            count={filtered.filter((user) => user.id !== profile?.id).length}
-            page={page}
-            onPageChange={(e, newPage) => setPage(newPage)}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(parseInt(e.target.value, 10));
-              setPage(0);
-            }}
-          />
+          <TableComponent header={headers} data={filtered} profile={profile} />
         </Box>
       )}
 

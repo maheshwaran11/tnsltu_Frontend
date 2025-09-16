@@ -14,12 +14,15 @@ import AddUserForm from './AddUserForm';
 import { t } from '../utils/i18n';
 import ViewUserDetails from './ViewUserDetails';
 import { Navigate, useNavigate } from 'react-router-dom';
+import AddEditFamilyMember from './AddEditFamilyMember';
+import TableComponent from './utils/TableComponent';
 
 const roles = ['all', 'admin', 'subadmin', 'district_admin', 'taluk_admin', 'district_subadmin', 'taluk_subadmin', 'user'];
 
 function AllUsers() {
   const { token, profile } = useAuth();
   const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
@@ -27,10 +30,19 @@ function AllUsers() {
   const [editUser, setEditUser] = useState(null);
   const [viewUser, setViewUser] = useState(null);
   const [total, setTotal] = useState(0);
-    const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isDistrictAdmin, setIsDistrictAdmin] = useState(false);
+  const [isDistrictSubAdmin, setIsDistrictSubAdmin] = useState(false);
+  const navigate = useNavigate();
 
-  
-  
+  useEffect(() => {
+    if (profile) {
+      setIsAdmin(profile.user_type === 'admin');
+      setIsDistrictAdmin(profile.user_type === 'district_admin');
+      setIsDistrictSubAdmin(profile.user_type === 'district_subadmin');
+    }
+  }, [profile]);
+
   const [lang, setLang] = useState('en');
   const [filterRole, setFilterRole] = useState('all');
 
@@ -124,14 +136,74 @@ function AllUsers() {
   };
 
   const headers = [
-    { label: 'Username', key: 'username' },
-    { label: 'Name', key: 'name' },
-    { label: 'Email', key: 'email' },
-    { label: 'User Type', key: 'user_type' },
-    { label: 'District', key: 'district' },
-    { label: 'Taluk', key: 'taluk' },
-    { label: 'Status', key: 'status' },
-    { label: 'Category', key: 'category' }
+    { id: 'sl_no', label: 'Sl No', key: 'serial_no' },
+    { id: 'username', label: 'Username', key: 'username' },
+    {
+    id: 'profile',
+    label: 'Profile',
+    key: 'profile_photo',
+    render: (row) => (
+      <Avatar
+        alt={row.username}
+        src={row.profile_photo ? `https://tnsltu.in/api/${row.profile_photo}` : ''}
+      >
+        {row.username?.[0]?.toUpperCase()}
+      </Avatar>
+    ),
+  },
+    { id: 'name', label: 'Name', key: 'name' },
+    { id: 'email', label: 'Email', key: 'email' },
+    { id: 'phone', label: 'Phone', key: 'phone' },
+    { id: 'district', label: 'District', key: 'district' },
+    { id: 'taluk', label: 'Taluk', key: 'taluk' },
+    // { id: 'status', label: 'Status', key: 'status' },
+    // { id: 'category', label: 'Category', key: 'category' },
+    {
+      id: 'family_actions', 
+      label: 'Family Actions', 
+      key: 'family_actions',
+      render: (row) => (
+        <Box display="flex" gap={1} minWidth={180}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setSelectedUser(row)}
+          >
+            Add Family Member
+          </Button>
+        </Box>
+      ),
+    },
+    {
+      id: 'actions', 
+      label: 'Actions', 
+      key: 'actions',
+      render: (row) => (
+        <Box display="flex" gap={1}>
+          <Button
+            variant="outlined"
+            color="info"
+            onClick={() => setViewUser(row)}
+          >
+            View
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={() => openEditDialog(row)}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={() => handleDelete(row)}
+          >
+            Delete
+          </Button>
+        </Box>
+      ),
+    }
   ];
 
   return (
@@ -149,11 +221,11 @@ function AllUsers() {
         </Button>
       </Typography>
 
-      <Box display="flex" gap={2} mb={2}>
+      <Box display="flex" gap={2} mb={2} flexWrap={'wrap'}>
         <TextField
           label={t('search_by_username', lang)}
-          fullWidth
           value={search}
+          className='input-control'
           onChange={handleSearch}
         />
         {
@@ -161,6 +233,7 @@ function AllUsers() {
             <>
           <TextField
             select
+            className='input-control'
             label={t('filter_by_role', lang)}
             value={filterRole}
             onChange={handleFilterRole}
@@ -193,20 +266,20 @@ function AllUsers() {
         <CircularProgress />
       ) : (
         <Box sx={{maxHeight: 'calc(100vh - 64px)', overflow: 'auto' }}>
-          <Table>
+          {/* <Table stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell>{t('Sl No', lang)}</TableCell>
-                <TableCell>{t('profile', lang)}</TableCell>
-                <TableCell>{t('username', lang)}</TableCell>
-                <TableCell>{t('name', lang)}</TableCell>
-                <TableCell>{t('email', lang)}</TableCell>
-                <TableCell>{t('user_type', lang)}</TableCell>
-                <TableCell>{t('district', lang)}</TableCell>
-                <TableCell>{t('taluk', lang)}</TableCell>
-                <TableCell>{t('created_by', lang)}</TableCell>
-                {/* <TableCell>{t('category', lang)}</TableCell> */}
-                <TableCell align="right">{t('actions', lang)}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', minWidth: 70 }}>{t('Sl No', lang)}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', minWidth: 100 }}>{t('profile', lang)}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', minWidth: 100 }}>{t('username', lang)}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', minWidth: 100 }}>{t('name', lang)}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', minWidth: 100 }}>{t('email', lang)}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', minWidth: 100 }}>{t('user_type', lang)}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', minWidth: 100 }}>{t('district', lang)}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', minWidth: 100 }}>{t('taluk', lang)}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', minWidth: 100 }}>{t('created_by', lang)}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', minWidth: 200 }}>{t('actions', lang)}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', minWidth: 280 }}>{t('actions', lang)}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -231,7 +304,17 @@ function AllUsers() {
                     <TableCell>{user.district || '-'}</TableCell>
                     <TableCell>{user.taluk || '-'}</TableCell>
                     <TableCell>{user.created_by_username || '-'}</TableCell>
-                    {/* <TableCell><span className={`tag-label ${user.category}`}>{t(user.category, lang) || '-'}</span></TableCell> */}
+                    <TableCell align="right">
+
+                      <Button
+                          variant="contained"
+                          size="small"
+                          sx={{ mr: 1 }}
+                          onClick={() => setSelectedUser(user)}
+                        >
+                          {t('Add Family Member', lang)}
+                        </Button>
+                      </TableCell>
                     <TableCell align="right">
                         <Button
                             variant="contained"
@@ -251,23 +334,28 @@ function AllUsers() {
                       >
                         {t('edit', lang)}
                       </Button>
-                      <Button
-                        variant="contained"
-                        color="error"
-                        size="small"
-                        startIcon={<Delete />}
-                        onClick={() => handleDelete(user)}
-                        sx={{ ml: 1 }}
-                      >
-                        {t('delete', lang)}
-                      </Button>
+                      {
+                        profile?.user_type === 'admin' && (
+                          <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            startIcon={<Delete />}
+                            onClick={() => handleDelete(user)}
+                            sx={{ ml: 1 }}
+                          >
+                            {t('delete', lang)}
+                          </Button>
+                        )
+                      }
+                      
                     </TableCell>
                   </TableRow>
                 ))}
             </TableBody>
-          </Table>
-
-          <TablePagination
+          </Table> */}
+          <TableComponent header={headers} data={filtered} profile={profile} />
+          {/* <TablePagination
             component="div"
             count={filtered.filter((user) => user.id !== profile?.id).length}
             page={page}
@@ -277,7 +365,7 @@ function AllUsers() {
               setRowsPerPage(parseInt(e.target.value, 10));
               setPage(0);
             }}
-          />
+          /> */}
         </Box>
       )}
 
@@ -287,16 +375,21 @@ function AllUsers() {
           <AddUserForm initialData={editUser} onClose={handleCloseDialog} />
         </DialogContent>
       </Dialog>
-
-
-
-
+      
 
         <ViewUserDetails
             user={viewUser}
             open={!!viewUser}
             onClose={() => setViewUser(null)}
             lang={lang}
+        />
+
+        <AddEditFamilyMember
+          user={selectedUser}
+          open={!!selectedUser}
+          onClose={() => setSelectedUser(null)}
+          lang={lang}
+          onSaveLocal={() => {}}
         />
 
 

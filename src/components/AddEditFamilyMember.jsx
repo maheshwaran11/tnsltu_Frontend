@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -13,24 +13,32 @@ import { t } from "../utils/i18n";
 import { saveFamilyMemberDetails } from "../api";
 import { useAuth } from "../store";
 
-const relations = ["Father", "Mother", "Brother", "Sister", "Spouse", "Child"];
+const relations = ['Father', 'Mother', 'Husband', 'Other'];
 const genders = ["Male", "Female", "Other"];
 const educationOptions = [
   "6th",
   "7th",
   "8th",
   "9th",
-  "10th",
-  "11th",
-  "12th",
-  "B.Sc",
-  "B.A",
-  "B.Com",
-  "B.Tech",
-  "M.Sc",
-  "M.A",
-  "M.Com",
-  "M.Tech",
+  "10th Studying",
+  "10th Completed",
+  "11th Studying",
+  "11th Completed",
+  "12th Studying",
+  "12th Completed",
+  "Diploma 1st Year",
+  "Diploma 2nd Year",
+  "Diploma 3rd Year",
+  "UG 1st Year",
+  "UG 2nd Year",
+  "UG 3rd Year",
+  "UG 4th Year",
+  "PG 1st Year",
+  "PG 2nd Year",
+  "Phd 1st Year",
+  "Phd 2nd Year",
+  "Phd 3rd Year",
+  "Phd 4th Year",
 ];
 const statuses = ["applied", "not applied", "approved", "rejected", "returned"];
 const claims = ["education", "marriage", "old_age_pension", "others"];
@@ -58,27 +66,42 @@ export default function AddEditFamilyMember({
 }) {
   const { token } = useAuth();
   const [formData, setFormData] = useState(initialEmptyForm);
+  const [errors, setErrors] = useState({});
+
+  console.log({user});
 
   // Resolve full member object from ID
   const selectedMember = editMember
     ? user?.family_members?.find((m) => m.id === editMember) || null
     : null;
 
-  // Generate academic years dynamically
-  const currentYear = new Date().getFullYear();
-  const academicYears = Array.from({ length: 20 }, (_, i) => currentYear - i).reverse();
+  // Generate academic years dynamically (memoized)
+  const academicYears = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 20 }, (_, i) => {
+      const start = currentYear - i;
+      return `${start}-${start + 1}`;
+    }).reverse();
+  }, []);
 
   // Reset / Prefill form when dialog opens
+  const normalizeDate = (dateStr) => {
+    if (!dateStr) return "";
+    return dateStr.split("T")[0].split(" ")[0]; // handles both "2021-10-29 00:00:00" and "2021-10-29T00:00:00"
+  };
+
   useEffect(() => {
     if (selectedMember) {
       setFormData({
         ...selectedMember,
-        dob: selectedMember.dob ? selectedMember.dob.split("T")[0] : "",
+        dob: normalizeDate(selectedMember.dob),
       });
     } else {
       setFormData(initialEmptyForm);
     }
+    setErrors({});
   }, [selectedMember, open]);
+
 
   // Handle field changes
   const handleChange = (e) => {
@@ -87,14 +110,15 @@ export default function AddEditFamilyMember({
 
     // Auto-calculate final year based on joining year + duration
     if (name === "joining_year" || name === "course_duration") {
-      const joining = parseInt(
-        name === "joining_year" ? value : updatedData.joining_year
-      );
+      const joiningYear = updatedData.joining_year; // "2024-2025"
       const duration = parseInt(
         name === "course_duration" ? value : updatedData.course_duration
       );
-      if (joining && duration) {
-        updatedData.final_year = joining + duration - 1;
+
+      if (joiningYear && duration) {
+        const startYear = parseInt(joiningYear.split("-")[0]); // e.g. 2024
+        const finalStart = startYear + duration - 1; // e.g. 2026
+        updatedData.final_year = `${finalStart}-${finalStart + 1}`;
       } else {
         updatedData.final_year = "";
       }
@@ -103,28 +127,38 @@ export default function AddEditFamilyMember({
     setFormData(updatedData);
   };
 
+  // Validation
+  const validate = () => {
+    let newErrors = {};
+    if (!formData.name) newErrors.name = t("required", lang);
+    if (!formData.relation) newErrors.relation = t("required", lang);
+    if (!formData.dob) newErrors.dob = t("required", lang);
+    if (!formData.gender) newErrors.gender = t("required", lang);
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   // Submit handler
   const handleSubmit = async () => {
-    if (!formData.name || !formData.relation || !formData.dob) {
-        return alert(t("please_fill_required_fields", lang));
-    }
+    if (!validate()) return;
 
     let payload = { ...formData };
 
-    if (editMember) {
-        payload.family_id = editMember.id;  // 👈 send family_id when editing
+    if (selectedMember) {
+      payload.family_id = selectedMember.id; // ✅ fixed bug
     }
 
     const res = await saveFamilyMemberDetails(user.id, payload, token);
 
     if (res.status === 200 || res.status === 201) {
-        alert(t("saved_successfully", lang));
-        if (typeof onSaveLocal === "function") {
+      alert(t("saved_successfully", lang));
+      if (typeof onSaveLocal === "function") {
         onSaveLocal(user.id, res.data);
-        }
-        onClose();
+      }
+      onClose();
     } else {
-        alert(t("save_failed", lang) + (res?.message || ""));
+      alert(t("save_failed", lang) + (res?.message || ""));
     }
   };
 
@@ -145,6 +179,8 @@ export default function AddEditFamilyMember({
               fullWidth
               margin="dense"
               required
+              error={!!errors.name}
+              helperText={errors.name}
             />
           </Grid>
 
@@ -158,6 +194,8 @@ export default function AddEditFamilyMember({
               fullWidth
               margin="dense"
               required
+              error={!!errors.relation}
+              helperText={errors.relation}
             >
               {relations.map((r) => (
                 <MenuItem key={r} value={r}>
@@ -176,6 +214,9 @@ export default function AddEditFamilyMember({
               onChange={handleChange}
               fullWidth
               margin="dense"
+              required
+              error={!!errors.gender}
+              helperText={errors.gender}
             >
               {genders.map((g) => (
                 <MenuItem key={g} value={g}>
@@ -196,79 +237,10 @@ export default function AddEditFamilyMember({
               margin="dense"
               InputLabelProps={{ shrink: true }}
               required
+              error={!!errors.dob}
+              helperText={errors.dob}
             />
           </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <TextField
-              select
-              label={t("education", lang)}
-              name="education"
-              value={formData.education}
-              onChange={handleChange}
-              fullWidth
-              margin="dense"
-            >
-              {educationOptions.map((e) => (
-                <MenuItem key={e} value={e}>
-                  {e}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          {/* Show course details only if higher education */}
-          {formData.education &&
-            !["6th", "7th", "8th", "9th", "10th", "11th", "12th"].includes(
-              formData.education
-            ) && (
-              <>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    select
-                    fullWidth
-                    label={t("course_duration", lang)}
-                    name="course_duration"
-                    value={formData.course_duration}
-                    onChange={handleChange}
-                  >
-                    {[1, 2, 3, 4, 5, 6].map((num) => (
-                      <MenuItem key={num} value={num}>
-                        {num}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    select
-                    label={t("joining_year", lang)}
-                    name="joining_year"
-                    value={formData.joining_year}
-                    onChange={handleChange}
-                    fullWidth
-                  >
-                    {academicYears.map((num) => (
-                      <MenuItem key={num} value={num}>
-                        {num}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    label={t("final_year", lang)}
-                    name="final_year"
-                    value={formData.final_year}
-                    disabled
-                    fullWidth
-                    margin="dense"
-                  />
-                </Grid>
-              </>
-            )}
 
           <Grid item xs={12} sm={6}>
             <TextField
@@ -282,11 +254,81 @@ export default function AddEditFamilyMember({
             >
               {claims.map((s) => (
                 <MenuItem key={s} value={s}>
-                  {s}
+                  {t(s, lang)}
                 </MenuItem>
               ))}
             </TextField>
           </Grid>
+
+          {formData.claim_type === 'education' && (
+            <>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                label={t("education", lang)}
+                name="education"
+                value={formData.education}
+                onChange={handleChange}
+                fullWidth
+                margin="dense"
+              >
+                {educationOptions.map((e) => (
+                  <MenuItem key={e} value={e}>
+                    {e}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label={t("course_duration", lang)}
+                name="course_duration"
+                value={formData.course_duration}
+                onChange={handleChange}
+                disabled={!formData.education}
+              >
+                {[1, 2, 3, 4, 5, 6].map((num) => (
+                  <MenuItem key={num} value={num}>
+                    {num}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                label={t("joining_year", lang)}
+                name="joining_year"
+                value={formData.joining_year}
+                onChange={handleChange}
+                fullWidth
+                disabled={!formData.education}
+              >
+                {academicYears.map((year) => (
+                  <MenuItem key={year} value={year}>
+                    {year}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label={t("final_year", lang)}
+                name="final_year"
+                value={formData.final_year}
+                disabled
+                fullWidth
+                margin="dense"
+              />
+            </Grid>
+
+          </>
+          )}
 
           <Grid item xs={12} sm={6}>
             <TextField
@@ -300,7 +342,7 @@ export default function AddEditFamilyMember({
             >
               {statuses.map((s) => (
                 <MenuItem key={s} value={s}>
-                  {s}
+                  {t(s, lang)}
                 </MenuItem>
               ))}
             </TextField>

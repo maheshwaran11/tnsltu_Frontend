@@ -10,6 +10,7 @@ import {
 import html2canvas from "html2canvas";
 import { t } from "../utils/i18n";
 import IdBac from "./../assets/images/id_bac.jpg";
+import IdBac1 from "./../assets/images/id_bac1.jpg";
 import { districtAddress } from "../data/locations";
 
 function ViewIdCardDetails({ user, open, onClose, lang = "en" }) {
@@ -79,7 +80,7 @@ const toBase64 = async (url) => {
             borderRadius: 2,
             textAlign: "center",
             background: "#fff",
-            backgroundImage: `url(${IdBac})`,
+            backgroundImage: `url(${user.user_type == 'user' ? IdBac1 : IdBac})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             position: "relative",
@@ -93,33 +94,51 @@ const toBase64 = async (url) => {
               textAlign: "left",
             }}
           >
+
+
+           <Typography
+            sx={{
+              fontWeight: "bold",
+              fontSize: "36px",
+              ml: user?.user_type === "user" ? 12 : 4,
+              lineHeight: 1,
+            }}
+          >
+            {user?.member_id}
+          </Typography>
+
+            
+
+
+
+
             <Typography
-              sx={{ fontWeight: "bold", fontSize: "36px", ml: 4, lineHeight: 1 }}
-            >
-              {user?.member_id}
-            </Typography>
-            <Typography
-              sx={{ fontWeight: "bold", fontSize: "36px", ml: 4, mt: 2, lineHeight: 1 }}
+              sx={{ fontWeight: "bold", fontSize: "36px", ml:  user?.user_type === "user" ? 12 : 4, mt: user?.user_type === "user" ? 3.5 : 2, lineHeight: 1 }}
             >
               {user?.id_card_name}
             </Typography>
             <Typography
-              sx={{ fontWeight: "bold", fontSize: "36px", ml: 4, mt: 3, lineHeight: 1 }}
+              sx={{ fontWeight: "bold", fontSize: "36px", ml:  user?.user_type === "user" ? 12 : 4, mt: user?.user_type === "user" ? 4 : 3, lineHeight: 1 }}
             >
               {user?.occupation}
             </Typography>
+
+            {
+              user.user_type !== 'user' && (
+                <Typography
+                  sx={{ fontWeight: "bold", fontSize: "36px", ml:  user?.user_type === "user" ? 12 : 4, mt: 3, lineHeight: 1 }}
+                >
+                  {user?.position}
+                </Typography>
+              )}
+
             <Typography
-              sx={{ fontWeight: "bold", fontSize: "36px", ml: 4, mt: 3, lineHeight: 1 }}
-            >
-              {user?.position}
-            </Typography>
-            <Typography
-              sx={{ fontWeight: "bold", fontSize: "36px", ml: 4, mt: 3, lineHeight: 1 }}
+              sx={{ fontWeight: "bold", fontSize: "36px", ml:  user?.user_type === "user" ? 12 : 4, mt: user?.user_type === "user" ? 4.5 : 3, lineHeight: 1 }}
             >
               {user?.next_renewal_date}
             </Typography>
             <Typography
-              sx={{ fontWeight: "bold", fontSize: "36px", ml: 4, mt: 3, lineHeight: 1 }}
+              sx={{ fontWeight: "bold", fontSize: "36px", ml:  user?.user_type === "user" ? 12 : 4, mt: user?.user_type === "user" ? 4 : 3, lineHeight: 1 }}
             >
               {user?.phone}
             </Typography>
@@ -128,7 +147,7 @@ const toBase64 = async (url) => {
 
           <div style={{  }}>
             <Typography
-              sx={{ fontWeight: "bold", fontSize: "33px", mx: 4, mt: 18, lineHeight: 1.3, color: "#fff" }}
+              sx={{ fontWeight: "bold", fontSize: "33px", mx: 4, mt: user?.user_type === "user" ? 22 : 18, lineHeight: 1.3, color: "#fff" }}
             >
               {userDistrict?.[0]?.address}
             </Typography>

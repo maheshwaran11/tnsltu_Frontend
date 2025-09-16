@@ -6,6 +6,7 @@ import { registerAPI, updateUser } from '../api';
 import { t } from '../utils/i18n';
 import { districts, taluks, districtAddress } from '../data/locations';
 import { useAuth } from '../store';
+import { form } from 'framer-motion/client';
 
 const initialState = {
   username: '',
@@ -26,7 +27,12 @@ const initialState = {
   category: '',
   status: 'active',
   notes: '',
-  member_id: ''
+  member_id: '',
+  relation_type: '',
+  relation_name: '',
+  subscription_number: '',
+  donation_number: '',
+  card_status: ''
 };
 
 // const roles = ['admin', 'subadmin', 'district_admin', 'taluk_admin', 'district_subadmin', 'taluk_subadmin', 'user'];
@@ -40,7 +46,9 @@ function AddUserForm({ initialData, onClose }) {
   const [lang, setLang] = useState('en');
   const isEdit = !!initialData;
   const [isAdmin, setIsAdmin] = useState(profile?.user_type === 'admin');
-  const [isDistrictAdmin, setIsDistrictAdmin] = useState(profile?.user_type === 'district_admin' || profile?.user_type === 'district_subadmin');
+  const [isDistrictAdmin, setIsDistrictAdmin] = useState(profile?.user_type === 'district_admin');
+  const [isDistrictSubAdmin, setIsDistrictSubAdmin] = useState(profile?.user_type === 'district_subadmin');
+  const [isUser, setIsUser] = useState(formData.user_type === 'user');
 
   const [roles, setRoles] = useState(['user']);
 
@@ -62,13 +70,22 @@ const generateMemberID = (district, districtVal, suffix = '') => {
 
 useEffect(() => {
   if (profile?.user_type === 'admin') {
-    setRoles(['admin', 'subadmin', 'district_admin', 'taluk_admin', 'district_subadmin', 'taluk_subadmin', 'user', 'profile_photo']);
+    setRoles(['admin', 'subadmin', 'district_admin', 'taluk_admin', 'district_subadmin', 'taluk_subadmin', 'user']);
   } else if (profile?.user_type === 'district_admin') {
-    setRoles(['district_subadmin', 'user']);
+    setRoles(['user']);
   } else {
     setRoles(['user']);
   }
 }, [profile]);
+
+useEffect(() => {
+  setIsUser(formData.user_type === 'user');
+  if (isUser) {
+    formData.username = 'test';
+    formData.password = '123';
+    formData.email = 'test@example.com';
+  }
+}, [formData.user_type]);
 
   useEffect(() => {
     if (initialData) {
@@ -85,6 +102,7 @@ useEffect(() => {
   }, [isAdmin, profile?.district, formData.district]);
 
   const handleChange = (e) => {
+    console.log('Field changed:', e.target.name);
     const { name, value } = e.target;
     setFormData((prev) => {
         let updated = { ...prev, [name]: value };
@@ -130,7 +148,13 @@ useEffect(() => {
     setLoading(true);
     setError('');
 
+
     const requiredFields = ['username', 'name', 'user_type', 'district', 'taluk', 'phone', 'status', 'dob'];
+
+    if (formData?.user_type === 'user') {
+      requiredFields.push('card_status', 'donation_number');
+    }
+    
     if (!isEdit) requiredFields.push('password');
 
 
@@ -149,8 +173,15 @@ useEffect(() => {
       return;
     }
 
+    if(formData.profile_photo == null) {
+      alert('Profile photo is required.');
+      setLoading(false);
+      return;
+    }
+
     try {
         console.log('Submitting form data:', formData);
+        // return ;
       const result = isEdit ? await updateUser(formData, token) : await registerAPI(formData, token);
       if ([200, 201].includes(result.status)) {
         alert(isEdit ? t('update_user', lang) : t('register_user', lang));
@@ -181,25 +212,73 @@ useEffect(() => {
       </Box>
 
     <div className="form-layout">
+
         <div className="form-item">
-            <TextField required label={t('username', lang)} name="username" value={formData.username} onChange={handleChange} fullWidth />
-        </div>
-        <div className="form-item">
-            <TextField required label={t('name', lang)} name="name" value={formData.name} onChange={handleChange} fullWidth />
-        </div>
-        <div className="form-item">
-            <TextField required type="email" label={t('email', lang)} name="email" value={formData.email} onChange={handleChange} fullWidth />
-        </div>
-        {!isEdit && (
-            <div className="form-item">
-            <TextField required type="password" label={t('password', lang)} name="password" value={formData.password} onChange={handleChange} fullWidth />
-            </div>
-        )}
-        <div className="form-item">
-            <TextField select required label={t('user_type', lang)} name="user_type" value={formData.user_type} onChange={handleChange} fullWidth>
+            <TextField select required label={t('user_type', lang)} name="user_type" value={formData.user_type || ''} onChange={handleChange} fullWidth>
             {roles.map((r) => <MenuItem key={r} value={r}>{t(r, lang)}</MenuItem>)}
             </TextField>
         </div>
+
+        <div className="form-item">
+            <TextField required label={t('name', lang)} name="name" value={formData.name} onChange={handleChange} fullWidth />
+        </div>
+
+        {
+          !isUser && (
+            <div className="form-item">
+              <TextField required label={t('username', lang)} name="username" value={formData.username} onChange={handleChange} fullWidth />
+            </div>
+          )
+        }
+
+        {
+          !isUser && (
+          <div className="form-item">
+              <TextField required type="email" label={t('email', lang)} name="email" value={formData.email} onChange={handleChange} fullWidth />
+          </div>
+          )
+        }
+        
+        {
+          !isUser && (
+            !isEdit && (
+                <div className="form-item">
+                <TextField required type="password" label={t('password', lang)} name="password" value={formData.password} onChange={handleChange} fullWidth />
+                </div>
+            )
+        )}
+
+        {
+          isUser && (
+            <div className="form-item">
+              <TextField required type="text" label={t('relation_name', lang)} name="relation_name" value={formData.relation_name} onChange={handleChange} fullWidth />
+            </div>
+          )
+        }
+
+        {
+          isUser && (
+            <div className="form-item">
+              <TextField 
+              required 
+              select
+              label={t('relation_type', lang)} 
+              name="relation_type" 
+              value={formData.relation_type || ''} 
+              onChange={handleChange} fullWidth>
+                {
+                  ['Father', 'Mother', 'Husband', 'Other'].map((relation) => (
+                    <MenuItem key={relation} value={relation}>
+                      {t(relation, lang)}
+                    </MenuItem>
+                  ))
+                }
+              </TextField>
+            </div>
+          )
+        }
+        
+        
         
         <div className="form-item">
             <TextField
@@ -207,7 +286,7 @@ useEffect(() => {
             required
             label={t('district', lang)}
             name="district"
-            value={formData.district}
+            value={formData.district || ''}
             onChange={handleChange}
             fullWidth
             >
@@ -220,7 +299,7 @@ useEffect(() => {
             required
             label={t('taluk', lang)}
             name="taluk"
-            value={formData.taluk}
+            value={formData.taluk || ''}
             onChange={handleChange}
             fullWidth
             disabled={!formData.district}
@@ -235,7 +314,7 @@ useEffect(() => {
             <TextField required type="date" label={t('dob', lang)} name="dob" value={formData.dob} onChange={handleChange} fullWidth InputLabelProps={{ shrink: true }} />
         </div>
         <div className="form-item">
-            <TextField label={t('address', lang)} name="address" value={formData.address} onChange={handleChange} fullWidth />
+            <TextField label={t('address', lang)} required name="address" value={formData.address} onChange={handleChange} fullWidth />
         </div>
         <div className="form-item">
             <TextField label={t('address_tamil', lang)} name="address_tamil" value={formData.address_tamil} onChange={handleChange} fullWidth />
@@ -244,33 +323,88 @@ useEffect(() => {
             <TextField label={t('state', lang)} name="state" value={formData.state} onChange={handleChange} fullWidth />
         </div>
         <div className="form-item">
-            <TextField label={t('zipcode', lang)} name="zipcode" value={formData.zipcode} onChange={handleChange} fullWidth />
+            <TextField label={t('zipcode', lang)} required name="zipcode" value={formData.zipcode} onChange={handleChange} fullWidth />
         </div>
         <div className="form-item">
-            <TextField select label={t('gender', lang)} name="gender" value={formData.gender} onChange={handleChange} fullWidth>
+            <TextField select label={t('gender', lang)} name="gender" value={formData.gender || ''} onChange={handleChange} fullWidth>
             <MenuItem value="">{t('gender', lang)}</MenuItem>
             <MenuItem value="male">{t('male', lang)}</MenuItem>
             <MenuItem value="female">{t('female', lang)}</MenuItem>
             <MenuItem value="other">{t('other', lang)}</MenuItem>
             </TextField>
         </div>
-        <div className="form-item">
+        {/* <div className="form-item">
             <TextField select label={t('category', lang)} name="category" value={formData.category} onChange={handleChange} fullWidth>
             <MenuItem value="disabled">{t('disabled', lang)}</MenuItem>
             <MenuItem value="widow">{t('widow', lang)}</MenuItem>
             <MenuItem value="orphan">{t('orphan', lang)}</MenuItem>
             </TextField>
-        </div>
+        </div> */}
         <div className="form-item">
-            <TextField required select label={t('status', lang)} name="status" value={formData.status} onChange={handleChange} fullWidth>
+            <TextField required select label={t('user_status', lang)} name="status" value={formData.status || ''} onChange={handleChange} fullWidth>
             <MenuItem value="active">{t('active', lang)}</MenuItem>
             <MenuItem value="inactive">{t('inactive', lang)}</MenuItem>
             </TextField>
         </div>
-        
-        <div className="form-item">
-            <TextField label={t('notes', lang)} name="notes" value={formData.notes} onChange={handleChange} fullWidth />
-        </div>
+
+        {
+          isUser && (
+            <div className="form-item">
+              <TextField 
+              required 
+              select
+              label={t('card_type', lang)} 
+              name="card_type" 
+              value={formData.card_type || ''} 
+              onChange={handleChange} fullWidth>
+                {
+                  ['New', 'Renevel', 'Claim'].map((card) => (
+                    <MenuItem key={card} value={card}>
+                      {t(card, lang)}
+                    </MenuItem>
+                  ))
+                }
+              </TextField>
+            </div>
+          )
+        }
+
+        {
+          isUser && (
+            <div className="form-item">
+              <TextField
+              select
+              required
+              label={t('card_status', lang)}
+              name="card_status"
+              value={formData.card_status || ''}
+              onChange={handleChange}
+              fullWidth
+            >
+              <MenuItem value="select_card_status">{t('select_card_status', lang)}</MenuItem>
+              <MenuItem value="applied">{t('applied', lang)}</MenuItem>
+              <MenuItem value="pending">{t('pending', lang)}</MenuItem>
+              <MenuItem value="approved">{t('approved', lang)}</MenuItem>
+              <MenuItem value="rejected">{t('rejected', lang)}</MenuItem>
+              <MenuItem value="returned">{t('returned', lang)}</MenuItem>
+            </TextField>
+          </div>
+          )
+        }
+
+        {
+          isUser && (
+            <>
+            <div className="form-item">
+              <TextField label={t('donation/subscription number', lang)} required name="donation_number" value={formData.donation_number} onChange={handleChange} fullWidth />
+            </div>
+            {/* <div className="form-item">
+              <TextField label={t('subscription_number', lang)} name="subscription_number" value={formData.subscription_number} onChange={handleChange} fullWidth />
+            </div> */}
+            
+            </>
+          )
+        }
 
         {!isEdit && (
             <div className="form-item">
@@ -283,6 +417,12 @@ useEffect(() => {
                 />
             </div>
             )}
+        
+        <div className="form-item">
+            <TextField label={t('notes', lang)} name="notes" value={formData.notes} onChange={handleChange} fullWidth />
+        </div>
+
+        
         
     </div>
 

@@ -71,6 +71,56 @@
   "search_by_username": "பயனர் பெயரால் தேடு",
   "widow": "விதவை",
   "handicapped": "handicapped",
-  "orphan": "அனாதை"
+  "orphan": "அனாதை",
+
+  "created_by": "உருவாக்கியவர்",
+  "family_members": "குடும்ப உறுப்பினர்கள்",
+  "relationship": "உறவுகள்",
+  "relation": "உறவு",
+  "current_status": "தற்போதைய நிலை",
+  "claim_type": "கிளைம் வகை",
+  "applied": "சேவைக்கான விண்ணப்பம்",
+  "not applied": "சேவைக்கான விண்ணப்பம் செய்யப்படவில்லை",
+  "returned": "திரும்பியது",
+
+
+  "education": "கல்வி",
+  "marriage": "திருமணம்",
+  "old_age_pension": "மூத்த வயது ஓய்வூதியம்",
+  "others": "மற்றவை",
+  "add_family_member": "குடும்ப உறுப்பினரைச் சேர்க்கவும்",
+  "edit_family_member": "குடும்ப உறுப்பினரைத் திருத்தவும்",
+
+  "service": "சேவை",
+  "sl_no": "SL எண்",
+  "is_read": "படிக்கப்பட்டது",
+  "read": "படிக்கவும்",
+  "created_on": "உருவாக்கப்பட்டது",
+  "action": "செயல்",
+  "all_enquiries": "அனைத்து விசாரணைகள்",
+
+  "claim_for": "கிளைம் செய்ய",
+  "member_name": "உறுப்பினர் பெயர்",
+  "member_gender": "உறுப்பினர் பாலினம்",
+  "member_dob": "உறுப்பினர் பிறந்த தேதி",
+  "status_label": "நிலை",
+  "change_status": "நிலையை மாற்றவும்",
+  "submitted_on": "சமர்ப்பிக்கப்பட்ட தேதி",
+  "all": "அனைத்து",
+  "notifications": "அறிவிப்புகள்",
+
+  "all_claims": "அனைத்து கிளைம்கள்",
+  "add_claim": "கிளைம் சேர்க்கவும்",
+
+  "total_id_cards_generated": "Total ID Cards Generated",
+  "id": "ID",
+  "total_users": "Total Users",
+  "title": "Title",
+  "description": "Description",
+  "message": "Message",
+  "date": "Date",
+  "select_type": "Select Type",
+  "type": "Type",
+  "image": "Image"
 
 }

@@ -300,21 +300,30 @@ span.tag-label {
   border-radius: 30px;
   color: #fff;
 }
-.completed {
+.completed, .approved {
   background: var(--color-success);
   color: #fff;
 }
 
-.submitted {
+.submitted, .applied {
   background: var(--color-warning);
   color: var(--color-text);
 }
 
-.pending {
+.pending, .rejected, .returned {
   background: var(--color-danger);
   color: #fff;
 }
 .in_progress {
   background: var(--color-secondary);
   color: #fff;
+}
+.input-control {
+  min-width: 200px !important;
+}
+
+@media screen and (max-width: 768px) {
+  .profile-link {
+      display: none;
+  }
 }

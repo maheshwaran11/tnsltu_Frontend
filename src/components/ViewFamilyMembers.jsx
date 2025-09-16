@@ -20,6 +20,7 @@ import { getUsersWithFamily } from '../api'; // your API function
 import { useAuth } from '../store';
 import { t } from '../utils/i18n';
 import AddEditFamilyMember from './AddEditFamilyMember';
+import TableComponent from './utils/TableComponent';
 
 function ViewFamilyMembers({ user, open, onClose, lang = 'en' }) {
   const { token } = useAuth();
@@ -27,6 +28,33 @@ function ViewFamilyMembers({ user, open, onClose, lang = 'en' }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editMember, setEditMember] = useState(null);
+
+  const headers = [
+    { id: 'id', label: 'ID', key: 'id' },
+    { id: 'name', label: t('name', lang), key: 'name' },
+    { id: 'relation', label: t('relationship', lang), key: 'relation' },
+    { id: 'dob', label: t('dob', lang), key: 'dob' },
+    { id: 'gender', label: t('gender', lang), key: 'gender' },
+    { id: 'claim_type', label: t('claim_type', lang), key: 'claim_type' },
+    { id: 'current_status', label: t('current_status', lang), key: 'current_status' },
+    { id: 'actions', label: t('actions', lang), key: 'actions', render: (row) => (
+      <Box display="flex" gap={1} minWidth={120}>
+        <Button
+          variant="outlined"
+          onClick={() => setEditMember(row)}
+        >
+          {t('edit', lang)}
+        </Button>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => handleDelete(row.id)}
+        >
+          {t('delete', lang)}
+        </Button>
+      </Box>
+  ) },
+  ];
 
   useEffect(() => {
     const fetchFamily = async () => {
@@ -79,61 +107,9 @@ function ViewFamilyMembers({ user, open, onClose, lang = 'en' }) {
             <CircularProgress />
           </Box>
         ) : familyMembers.length > 0 ? (
-          <TableContainer component={Paper}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>#</TableCell>
-                  <TableCell>{t('name', lang)}</TableCell>
-                  <TableCell>{t('relationship', lang)}</TableCell>
-                  <TableCell>{t('dob', lang)}</TableCell>
-                  <TableCell>{t('gender', lang)}</TableCell>
-                  {/* <TableCell>{t('education', lang)}</TableCell> */}
-                  {/* <TableCell>{t('current_year', lang)}</TableCell> */}
-                  <TableCell>{t('claim_type', lang)}</TableCell>
-                  <TableCell>{t('current_status', lang)}</TableCell>
-                  <TableCell>{t('actions', lang)}</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {familyMembers.map((member, index) => (
-                  <TableRow key={member.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{member.name || 'N/A'}</TableCell>
-                    <TableCell>{member.relation || 'N/A'}</TableCell>
-                    <TableCell>{member.dob || 'N/A'}</TableCell>
-                    <TableCell>{member.gender || 'N/A'}</TableCell>
-                    {/* <TableCell>{member.education || 'N/A'}</TableCell> */}
-                    {/* <TableCell>{member.current_year || 'N/A'}</TableCell> */}
-                    <TableCell>{member.claim_type || 'N/A'}</TableCell>
-                    <TableCell>{member.current_status || 'N/A'}</TableCell>
-                    <TableCell>
-                        <Button
-                            variant="outlined"
-                            color="error"
-                            size="small"
-                            onClick={() => handleDelete(member.id)}
-                            >
-                            {t('delete', lang)}
-                        </Button>
+          <TableComponent header={headers} data={familyMembers} profile={null} />
 
-
-                        <Button
-                            variant="outlined"
-                            color="primary"
-                            size="small"
-                            onClick={() => setEditMember(member.id)}
-                            >
-                            {t('edit', lang)}
-                        </Button>
-
-
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          
         ) : (
           <Typography align="center" color="textSecondary" mt={2}>
             {t('no_family_members_found', lang)}
