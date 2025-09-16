@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../store';
 import { t } from '../utils/i18n';
 import { getAllClaims, updateClaimStatus } from '../api'; 
+import TableComponent from './utils/TableComponent';
 
 // 🔹 Predefined options
 const STATUSES = ["applied", "not applied", "approved", "rejected", "returned"];
@@ -22,6 +23,34 @@ function AllClaims() {
   // Filters
   const [claimTypeFilter, setClaimTypeFilter] = useState('');
   const [claimStatusFilter, setClaimStatusFilter] = useState('');
+
+  const headers = [
+    { id: 'username', label: t('username', lang), key: 'username' },
+    { id: 'district', label: t('district', lang), key: 'district' },
+    { id: 'taluk', label: t('taluk', lang), key: 'taluk' },
+    { id: 'claim_for', label: t('claim_for', lang), key: 'relation' },
+    { id: 'member_name', label: t('member_name', lang), key: 'member_name' },
+    // { id: 'member_id', label: t('member_id', lang), key: 'member_id' },
+    { id: 'claim_type', label: t('claim_type', lang), key: 'claim_type' },
+    { id: 'current_status', label: t('current_status', lang), key: 'current_status', render: (row) => (
+      <span className={'status ' + (row.current_status || 'unknown')}>{t(row.current_status, lang)}</span>
+    ) },
+    { id: 'change_status', label: t('change_status', lang), key: 'change_status', render: (row) => (
+      <FormControl size="small" fullWidth>
+        <Select
+          value={row.current_status}
+          onChange={(e) => handleStatusChange(row.claim_id, e.target.value)}
+        >
+          {STATUSES.map((status) => (
+            <MenuItem key={status} value={status}>
+              {t(status, lang)}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+  ) },
+  { id: 'submitted_on', label: t('submitted_on', lang), key: 'claim_created_at', render: (row) => formatDate(row.claim_created_at) }
+  ];
 
   // 🔹 Fetch all claims
   const fetchAllClaims = async () => {
@@ -103,9 +132,10 @@ const handleStatusChange = async (claimId, newStatus) => {
       </Typography>
 
       {/* 🔹 Filter Controls */}
-      <Grid container spacing={2} mb={2}>
-        <Grid item xs={12} sm={6} md={3}>
-          <FormControl fullWidth size="small" className='filter-control'>
+      <Box display="flex" gap={2} mb={2} flexWrap={'wrap'}>
+
+
+          <FormControl size="small" className='filter-control input-control'>
             <InputLabel>{t('claim_type', lang)}</InputLabel>
             <Select
               value={claimTypeFilter}
@@ -120,9 +150,8 @@ const handleStatusChange = async (claimId, newStatus) => {
               ))}
             </Select>
           </FormControl>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <FormControl fullWidth size="small" className='filter-control'>
+
+          <FormControl size="small" className='filter-control input-control'>
             <InputLabel>{t('status', lang)}</InputLabel>
             <Select
               value={claimStatusFilter}
@@ -137,8 +166,7 @@ const handleStatusChange = async (claimId, newStatus) => {
               ))}
             </Select>
           </FormControl>
-        </Grid>
-      </Grid>
+      </Box>
 
       {loading ? (
         <Box display="flex" justifyContent="center" my={4}>
@@ -149,66 +177,10 @@ const handleStatusChange = async (claimId, newStatus) => {
           {t('no_claims_found', lang)}
         </Typography>
       ) : (
-        <TableContainer>
-          <Table>
-            <TableHead>
-                <TableRow>
-                    <TableCell>{t('username', lang)}</TableCell>
-                    <TableCell>{t('district', lang)}</TableCell>
-                    <TableCell>{t('taluk', lang)}</TableCell>
-                    <TableCell>{t('claim_for', lang)}</TableCell>
-                    <TableCell>{t('member_name', lang)}</TableCell>
-                    <TableCell>{t('member_gender', lang)}</TableCell>
-                    <TableCell>{t('member_dob', lang)}</TableCell>
-                    <TableCell>{t('claim_type', lang)}</TableCell>
-                    <TableCell>{t('status_label', lang)}</TableCell>
-                    <TableCell>{t('change_status', lang)}</TableCell>
-                    <TableCell>{t('submitted_on', lang)}</TableCell>
-                </TableRow>
-                </TableHead>
-
-                <TableBody>
-                {filteredClaims.map((claim) => (
-                    <TableRow key={claim.claim_id}>
-                    <TableCell>{claim.username}</TableCell>
-                    <TableCell>{claim.district}</TableCell>
-                    <TableCell>{claim.taluk}</TableCell>
-                    <TableCell>{claim.relation}</TableCell>
-                    <TableCell>{claim.member_name || '-'}</TableCell>
-                    <TableCell>{claim.member_gender || '-'}</TableCell>
-                    <TableCell>{formatDate(claim.member_dob)}</TableCell>
-                    <TableCell>{t(claim.claim_type || '-', lang)}</TableCell>
-
-                    {/* 🔹 Status Label */}
-                    <TableCell>
-                        <Typography variant="body2" color="primary">
-                        {t(claim.current_status || '-', lang)}
-                        </Typography>
-                    </TableCell>
-
-                    {/* 🔹 Status Dropdown */}
-                    <TableCell>
-                        <FormControl size="small" fullWidth>
-                        <Select
-                            value={claim.current_status || ''}
-                            onChange={(e) => handleStatusChange(claim.claim_id, e.target.value)}
-                        >
-                            {STATUSES.map((status) => (
-                            <MenuItem key={status} value={status}>
-                                {t(status, lang)}
-                            </MenuItem>
-                            ))}
-                        </Select>
-                        </FormControl>
-                    </TableCell>
-
-                    <TableCell>{formatDateTime(claim.claim_created_at)}</TableCell>
-                    </TableRow>
-                ))}
-                </TableBody>
-
-          </Table>
-        </TableContainer>
+        <Box sx={{maxHeight: 'calc(100vh - 64px)', overflow: 'auto' }}>
+          
+          <TableComponent header={headers} data={filteredClaims} profile={null} />
+        </Box>
       )}
     </Paper>
   );

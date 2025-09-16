@@ -8,6 +8,7 @@ import { t } from '../utils/i18n';
 import { getAllFamilyMembers } from '../api'; 
 import AddEditFamilyMember from './AddEditFamilyMember';
 import ViewFamilyMembers from './ViewFamilyMembers';
+import TableComponent from './utils/TableComponent';
 
 function AllFamilyMembers() {
   const { token } = useAuth();
@@ -18,7 +19,38 @@ function AllFamilyMembers() {
   // Dialog state
   const [selectedUser, setSelectedUser] = useState(null); // for Add/Edit
   const [viewUser, setViewUser] = useState(null); // for View
-
+  const headers = [
+    { id: 'id', label: 'ID', key: 'id' },
+    { id: 'username', label: t('Username', lang), key: 'username' },
+    { id: 'name', label: t('Name', lang), key: 'name' },
+    { id: 'district', label: t('District', lang), key: 'district' },
+    { id: 'family_members', label: t('Family Members', lang), key: 'family_members', render: (row) => row.family_members?.length || 0 },
+    { id: 'actions', 
+      label: t('Actions', lang), 
+      key: 'actions', 
+      render: (row) => (
+        <Box display="flex" gap={1} minWidth={180}>
+          {row.family_members?.length < 3 && (
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => setSelectedUser(row)}
+            >
+              {t('Add Family Member', lang)}
+            </Button>
+          )}
+          {row.family_members?.length > 0 && (
+            <Button
+              variant="contained"
+              color="info"
+              onClick={() => setViewUser(row)}
+            >
+              {t('View Family Members', lang)}
+            </Button>
+          )}
+        </Box>
+      ) },
+  ];
   const fetchFamilyMembers = async () => {
     setLoading(true);
     try {
@@ -69,7 +101,7 @@ function AllFamilyMembers() {
         </Box>
       ) : members.length > 0 ? (
         <Box sx={{ maxHeight: 'calc(100vh - 64px)', overflow: 'auto' }}>
-          <Table size="small">
+          {/* <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell>{t('Sl No', lang)}</TableCell>
@@ -113,7 +145,9 @@ function AllFamilyMembers() {
                 </TableRow>
               ))}
             </TableBody>
-          </Table>
+          </Table> */}
+
+          <TableComponent header={headers} data={members} profile={null} />
         </Box>
       ) : (
         <Typography align="center" color="textSecondary">

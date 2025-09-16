@@ -23,7 +23,7 @@ import { t } from '../utils/i18n';
 function AdminProfile() {
   const { profile, token, fetchProfile } = useAuth();
   if (!profile) return null;
-
+  console.log("Profile Data:", profile);
   const [openEdit, setOpenEdit] = useState(false);
   const [openPassword, setOpenPassword] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
@@ -100,7 +100,7 @@ function AdminProfile() {
   const handleCloseDialog = () => {
     setEditUser(null);
     setOpenDialog(false);
-    fetchProfile();
+    // fetchProfile();
   };
 
   return (
@@ -145,6 +145,9 @@ function AdminProfile() {
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Role: {profile.user_type || 'N/A'}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Member ID: {profile.member_id || 'N/A'}
             </Typography>
           </Box>
         </Box>

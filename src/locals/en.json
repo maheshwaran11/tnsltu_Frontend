@@ -72,5 +72,55 @@
   "search_by_username": "Search by Username",
   "widow": "Widow",
   "handicapped": "Handicapped",
-  "orphan": "Orphan"
+  "orphan": "Orphan",
+
+  "created_by": "Created By",
+  "family_members": "Family Members",
+  "relationship": "Relationship",
+  "relation": "Relation",
+  "current_status": "Current Status",
+  "claim_type": "Claim Type",
+  "applied": "Applied",
+  "not applied": "Not Applied",
+  "returned": "Returned",
+
+  "education": "Education",
+  "marriage": "Marriage",
+  "old_age_pension": "Old Age Pension",
+  "others": "Others",
+  "add_family_member": "Add Family Member",
+  "edit_family_member": "Edit Family Member",
+
+  "service": "Service",
+  "sl_no": "SL No",
+  "is_read": "Is Read",
+  "read": "Read",
+  "created_on": "Created On",
+  "action": "Action",
+  "all_enquiries": "All Enquiries", 
+
+  "claim_for": "Claim For",
+  "member_name": "Member Name",
+  "member_gender": "Member Gender",
+  "member_dob": "Member Date of Birth",
+  "status_label": "Status",
+  "change_status": "Change Status",
+  "submitted_on": "Submitted On",
+
+  "all": "All",
+  "notifications": "Notifications",
+
+  "all_claims": "All Claims",
+  "add_claim": "Add Claim",
+  
+  "total_id_cards_generated": "Total ID Cards Generated",
+  "id": "ID",
+  "total_users": "Total Users",
+  "title": "Title",
+  "description": "Description",
+  "message": "Message",
+  "date": "Date",
+  "select_type": "Select Type",
+  "type": "Type",
+  "image": "Image"
 }

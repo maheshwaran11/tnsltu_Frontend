@@ -133,6 +133,7 @@ const handleDeleteNotification = async (id) => {
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <TextField
+            className='input-control'
               label={t("title", lang)}
               value={newNotification.title}
               onChange={(e) => setNewNotification({ ...newNotification, title: e.target.value })}
@@ -142,6 +143,7 @@ const handleDeleteNotification = async (id) => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
+            className='input-control'
               label={t("message", lang)}
               value={newNotification.message}
               onChange={(e) => setNewNotification({ ...newNotification, message: e.target.value })}
@@ -151,6 +153,7 @@ const handleDeleteNotification = async (id) => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
+            className='input-control'
               type="date"
               label={t("date", lang)}
               InputLabelProps={{ shrink: true }}
@@ -161,6 +164,7 @@ const handleDeleteNotification = async (id) => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <select
+            className='input-control'
               style={{ width: "100%", padding: "10px", borderRadius: "4px" }}
               value={newNotification.type}
               onChange={(e) => setNewNotification({ ...newNotification, type: e.target.value })}
@@ -175,6 +179,7 @@ const handleDeleteNotification = async (id) => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <input
+            className='input-control'
               type="file"
               accept="image/*"
               onChange={(e) => setNewNotification({ ...newNotification, image: e.target.files[0] })}
