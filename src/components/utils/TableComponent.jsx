@@ -2,8 +2,6 @@ import React, { useState } from 'react'
 import { Table, TableHead, TableRow, TableCell, TableBody, TablePagination } from '@mui/material';
 
 export default function TableComponent({ header, data, profile }) {
-    console.log("TableComponent data:", data);
-    console.log("TableComponent header:", header);
       const [page, setPage] = useState(0);
       const [rowsPerPage, setRowsPerPage] = useState(10);
   return (
