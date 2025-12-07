@@ -560,12 +560,13 @@ export async function updateOrderStatusAPI(payload, token) {
   }
 }
 
-export const getUpcomingNotifications = async () => {
+export const getUpcomingNotifications = async (token) => {
   try {
     const response = await fetch(`${API_BASE}/getUpcomingNotifications.php`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
     });
 

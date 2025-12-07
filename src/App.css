@@ -321,7 +321,11 @@ span.tag-label {
 .input-control {
   min-width: 200px !important;
 }
-
+.notification-wrapper ul li {
+  cursor: pointer;
+  border-bottom: 1px solid #ececec;
+  padding: 10px;
+}
 @media screen and (max-width: 768px) {
   .profile-link {
       display: none;

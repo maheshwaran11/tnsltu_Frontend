@@ -152,7 +152,8 @@ const approveCard = async (user) => {
   const headers = [
     { id: 'serial_no', label: t('Sl No', lang), key: 'serial_no' },
     { id: 'username', label: t('username', lang), key: 'username' },
-    { id: 'name', label: t('name', lang), key: 'id_card_name' },
+    { id: 'full_name', label: t('name', lang), key: 'full_name' },
+    { id: 'name', label: t('id_card_name', lang), key: 'id_card_name' },
     { id: 'member_id', label: t('member_id', lang), key: 'member_id' },
     { id: 'registration_date', label: t('registration_date', lang), key: 'registration_date' },
     { id: 'next_renewal_date', label: t('next_renewal_date', lang), key: 'next_renewal_date' },

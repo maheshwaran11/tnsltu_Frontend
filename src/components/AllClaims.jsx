@@ -128,7 +128,7 @@ const handleStatusChange = async (claimId, newStatus) => {
   return (
     <Paper sx={{ p: 2, overflow: 'auto' }}>
       <Typography variant="h6" gutterBottom>
-        {t('all_claims', lang)}
+        {t('all_claims', lang)}  ({filteredClaims.length})
       </Typography>
 
       {/* 🔹 Filter Controls */}

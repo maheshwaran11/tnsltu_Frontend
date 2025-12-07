@@ -63,7 +63,11 @@ function AdminDashboard() {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [selectedPage, setSelectedPage] = useState('user-stats');
-  const { profile, setProfile } = useAuth();
+  const { profile, setProfile, token } = useAuth();
+
+  const [notificationUser, setNotificationUser] = useState(null);
+  const [notificationDaysLeft, setNotificationDaysLeft] = useState(null);
+
   const anchorRef = useRef(null);
   const navigate = useNavigate();
 
@@ -141,12 +145,20 @@ function AdminDashboard() {
   };
   const fetchUpcomingNotifications = async () => {
     try {
-      const response = await getUpcomingNotifications();
+      const response = await getUpcomingNotifications(token);
       console.log("Upcoming notifications:", response);
       setNotifications(response.data);
     } catch (error) {
       console.error("Error fetching upcoming notifications:", error);
     }
+  };
+
+  const handleNotificationClick = (notification) => {
+    setNotificationUser(notification.username);
+    setSelectedPage('all-users');
+    console.log("Notification clicked:", notification);
+    setNotificationOpen(false);
+    if (isMobile) setMobileOpen(false);
   };
 
   useEffect(() => {
@@ -233,9 +245,10 @@ function AdminDashboard() {
                 anchorEl={anchorRef.current}
                 placement="bottom-end"
                 style={{ zIndex: 1300 }}
+                className='notification-wrapper'
               >
                 <ClickAwayListener onClickAway={handleClose}>
-                  <Paper elevation={3} sx={{ width: 300, mt: 1 }}>
+                  <Paper elevation={2} sx={{ width: 300, mt: 1 }}>
                     <Typography variant="subtitle1" gutterBottom sx={{ p: 1 }}>
                       Renewal Notifications
                     </Typography>
@@ -246,7 +259,7 @@ function AdminDashboard() {
                     ) : (
                       <List dense>
                         {notifications?.map((n) => (
-                          <ListItem key={n.id} divider sx={{ p: 1 }}>
+                          <ListItem key={n.id} divider sx={{ p: 1 }} onClick={() => handleNotificationClick(n)}>
                             {/* Profile Photo */}
                             <ListItemAvatar>
                               <Avatar
@@ -367,7 +380,7 @@ function AdminDashboard() {
           px: 2, pt: 3, pb: 6
         }}
       >
-        {selectedPage === 'all-users' && <AllUsers />}
+        {selectedPage === 'all-users' && <AllUsers notificationUser={notificationUser} />}
         {selectedPage === 'user-stats' && <UserStats />}
         {selectedPage === 'profile' && <AdminProfile />}
         {selectedPage === 'id-cards' && <AllIdCards />}

@@ -92,7 +92,7 @@ function AllFamilyMembers() {
   return (
     <Paper sx={{ p: 2, overflow: 'auto' }}>
       <Typography variant="h6" gutterBottom>
-        {t('family_members', lang)}
+        {t('family_members', lang)} ({members.length})
       </Typography>
 
       {loading ? (

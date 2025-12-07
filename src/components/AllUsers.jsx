@@ -19,13 +19,13 @@ import TableComponent from './utils/TableComponent';
 
 const roles = ['all', 'admin', 'subadmin', 'district_admin', 'taluk_admin', 'district_subadmin', 'taluk_subadmin', 'user'];
 
-function AllUsers() {
+function AllUsers({notificationUser}) {
   const { token, profile } = useAuth();
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(notificationUser || '');
   const [openDialog, setOpenDialog] = useState(false);
   const [editUser, setEditUser] = useState(null);
   const [viewUser, setViewUser] = useState(null);
@@ -33,7 +33,23 @@ function AllUsers() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isDistrictAdmin, setIsDistrictAdmin] = useState(false);
   const [isDistrictSubAdmin, setIsDistrictSubAdmin] = useState(false);
+  
+  const [lang, setLang] = useState('en');
+  const [filterRole, setFilterRole] = useState('all');
+
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log('Notification User:', notificationUser);
+    if (notificationUser) {
+      setSearch(notificationUser);
+      applyFilter(notificationUser, filterRole);
+      console.log('Setting search to:', notificationUser);
+    }
+  }, [notificationUser, filterRole]);
 
   useEffect(() => {
     if (profile) {
@@ -43,12 +59,6 @@ function AllUsers() {
     }
   }, [profile]);
 
-  const [lang, setLang] = useState('en');
-  const [filterRole, setFilterRole] = useState('all');
-
-  // Pagination state
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -69,12 +79,15 @@ function AllUsers() {
     if (token) fetchUsers();
   }, [token]);
 
-  // useEffect(() => {
-  //   if (viewUser) {
-  //     navigate(`view/${viewUser.id}`);
-  //   }
-  // }, [viewUser]);
-
+  useEffect(() => {
+    if(notificationUser) {
+      setTimeout(() => {
+        setSearch(notificationUser);
+        applyFilter(notificationUser, filterRole);
+      }, 1000);    
+    }
+  }, [notificationUser]);
+  
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearch(query);
@@ -88,6 +101,7 @@ function AllUsers() {
   };
 
   const applyFilter = (searchQuery, roleFilter) => {
+    console.log("Applying filter with searchQuery:", searchQuery, "and roleFilter:", roleFilter);
     let data = [...users];
 
     if (roleFilter !== 'all') {
@@ -209,7 +223,7 @@ function AllUsers() {
   return (
     <Paper sx={{ p: 2, overflow: 'auto' }}>
       <Typography variant="h6" gutterBottom>
-        {t('all_users', lang)} ({total})
+        {t('all_users', lang)} ({filtered.length})
         <Button
           variant="contained"
           startIcon={<PersonAdd />}
